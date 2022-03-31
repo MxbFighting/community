@@ -1,0 +1,35 @@
+#端口设置
+server:
+  port: 8080
+  servlet:
+    context-path: /community
+
+#数据库配置
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/community?characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  #数据库连接池
+    hikari:
+      maximum-pool-size: 15
+      minimum-idle: 5
+      idle-timeout: 30000
+  #关闭thymeleaf缓存
+  thymeleaf:
+    cache: false
+
+
+mybatis-plus:
+  configuration:
+    # 日志
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+  mapper-locations: classpath:mappers/*.xml
+
+
+
+
