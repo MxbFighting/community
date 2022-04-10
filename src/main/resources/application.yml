@@ -19,16 +19,40 @@ spring:
   #关闭thymeleaf缓存
   thymeleaf:
     cache: false
+#    邮箱配置
+  mail:
+    host: smtp.qq.com
+    port: 465
+    username: 1711293190@qq.com
+    password: wpqifrmvjeaceeee
+    protocol: smtps
+    properties.mail.smtp.ssl.enable: true
 
-
-mybatis-plus:
   configuration:
     # 日志
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
     db-config:
       id-type: auto
+
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    #自动生成id
+    use-generated-keys: true
+  type-aliases-package: com.mxb.community.domain
+  global-config:
+    db-config:
+      id-type: auto
   mapper-locations: classpath:mappers/*.xml
+
+#自定义键值对
+community.path.domain: http://localhost:8080
+
+
+
+
 
 
 

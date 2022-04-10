@@ -4,6 +4,7 @@ import com.mxb.community.domain.entity.DiscussPost;
 import com.mxb.community.mapper.DiscussPostMapper;
 import com.mxb.community.mapper.UserMapper;
 import com.mxb.community.service.DiscussPostService;
+import com.mxb.community.utils.MailClient;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,6 +39,14 @@ class CommunityApplicationTests {
     public void test02() {
         int i = discussPostService.selectDiscussPostRows(149);
         System.out.println(i);
+    }
+
+    @Autowired
+    private MailClient mailClient;
+
+    @Test
+    public void testSendMail() {
+        mailClient.sendMail("1711293190@qq.com", "测试springboot发邮寄", "springboot发邮件");
     }
 
 

@@ -6,8 +6,8 @@
 <mapper namespace="com.mxb.community.mapper.UserMapper">
     <!--使用insert,update,delete,select标签写sql-->
     
-    <update id="updatePassword">
-        update user set password = #{password} where id = #{id}
+    <update id="updateStatus">
+        update user set status = #{status} where id = #{id}
     </update>
 
 

@@ -11,10 +11,10 @@ import org.apache.ibatis.annotations.Mapper;
 public interface UserMapper extends BaseMapper<User> {
 
     /**
-     * 通过id改变密码
+     * 通过id改变状态
      * @param id
      * @return
      */
-    int updatePassword(String password, Integer id);
+    int updateStatus(int status, Integer id);
 
 }
