@@ -12,9 +12,18 @@ public interface UserMapper extends BaseMapper<User> {
 
     /**
      * 通过id改变状态
+     * @param status
      * @param id
      * @return
      */
     int updateStatus(int status, Integer id);
+
+    /**
+     * 通过id改变头像路径
+     * @param userId
+     * @param headerUrl
+     * @return
+     */
+    int updateHeader(int userId, String headerUrl);
 
 }

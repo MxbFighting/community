@@ -1,10 +1,10 @@
 package com.mxb.community.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.injector.methods.SelectById;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mxb.community.domain.entity.LoginTicket;
 import com.mxb.community.domain.entity.User;
+import com.mxb.community.mapper.LoginTicketMapper;
 import com.mxb.community.mapper.UserMapper;
 import com.mxb.community.service.UserService;
 import com.mxb.community.utils.CommunityConstant;
@@ -16,8 +16,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import sun.security.krb5.internal.Ticket;
 
-import java.awt.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +31,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private LoginTicketMapper loginTicketMapper;
 
     @Autowired
     private MailClient mailClient;
@@ -134,6 +137,75 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         } else {
             return CommunityConstant.ACTIVATION_FAILURE;
         }
+    }
+
+    @Override
+    public Map<String, Object> login(String username, String password, long expiredSeconds) {
+        Map<String, Object> map = new HashMap<>();
+
+        //对传入的username, password进行判断, 如果为空的话进行处理然后直接返回
+        if (StringUtils.isBlank(username)) {
+            map.put("usernameMsg", "账号不能为空");
+            return map;
+        }
+
+        if (StringUtils.isBlank(password)) {
+            map.put("usernameMsg", "账号不能为空");
+            return map;
+        }
+
+        //验证账号
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getUsername, username);
+        User user = userMapper.selectOne(queryWrapper);
+        if (user == null) {
+            map.put("usernameMsg", "该账号不存在");
+            return map;
+        }
+
+        //验证状态
+        if (user.getStatus() == 0) {
+            map.put("usernameMsg", "该账号未激活");
+            return map;
+        }
+
+        //验证密码
+        password = CommunityUtil.md5(password + user.getSalt());
+        if (!password.equals(user.getPassword())) {
+            map.put("passwordMsg", "密码错误");
+            return map;
+        }
+
+        //到这一步已经没问题就可以生成 登录凭证了
+        //对登录凭证的属性进行设置, ticket是generateUUID产生的随机字符串
+        LoginTicket loginTicket = new LoginTicket();
+        loginTicket.setUserId(user.getId());
+        loginTicket.setStatus(0);
+        String ticket = CommunityUtil.generateUUID();
+        loginTicket.setTicket(ticket);
+        loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000));
+
+        //存到数据库
+        loginTicketMapper.insertLoginTicket(loginTicket);
+
+        //把tikcet字符串存到map里以便给浏览器发过去, 让浏览器记住你
+        map.put("ticket", ticket);
+        return map;
+    }
+
+    @Override
+    public void logout(String ticket) {
+        loginTicketMapper.updateStatus(ticket, 1);
+    }
+
+    @Override
+    public LoginTicket findLoginTicket(String ticket) {
+        return loginTicketMapper.selectByTicket(ticket);
+    }
+
+    @Override
+    public int updateHeader(int userId, String headerUrl) {
+        return userMapper.updateHeader(userId, headerUrl);
     }
 }
 

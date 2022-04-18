@@ -49,6 +49,8 @@ mybatis-plus:
 
 #自定义键值对
 community.path.domain: http://localhost:8080
+community.path.upload: d:/work/data/upload
+
 
 
 
